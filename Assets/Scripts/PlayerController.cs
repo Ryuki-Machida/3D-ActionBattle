@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     /// <summary>ターンの速さ</summary>
     [SerializeField] float _turnSpeed = default;
 
+    /// <summary>攻撃中判定</summary>
+    bool _isAttack;
+
     Rigidbody _rb;
     Animator _anim;
 
@@ -24,7 +27,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        PlayerMove();
+        if (!_isAttack)
+        {
+            Moving();
+        }
+
+        Attack();
     }
 
     void LateUpdate()
@@ -32,13 +40,13 @@ public class PlayerController : MonoBehaviour
         // 水平方向の速度を求めて Animator Controller のパラメーターに渡す
         Vector3 horizontalVelocity = _rb.velocity;
         horizontalVelocity.y = 0;
-        //_anim.SetFloat("Speed", horizontalVelocity.magnitude);
+        _anim.SetFloat("Speed", horizontalVelocity.magnitude);
     }
 
     /// <summary>
     /// 動き
     /// </summary>
-    void PlayerMove()
+    void Moving()
     {
         float v = Input.GetAxisRaw("Vertical");
         float h = Input.GetAxisRaw("Horizontal");
@@ -60,6 +68,27 @@ public class PlayerController : MonoBehaviour
             Vector3 velo = dir.normalized * _movingSpeed; // 入力した方向に移動する
             velo.y = _rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
             _rb.velocity = velo;   // 計算した速度ベクトルをセットする
+        }
+    }
+
+    /// <summary>
+    /// 攻撃
+    /// </summary>
+    void Attack()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            _anim.SetBool("Attack", true);
+        }
+
+        if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Attack1") || _anim.GetCurrentAnimatorStateInfo(0).
+            IsName("Attack2") || _anim.GetCurrentAnimatorStateInfo(0).IsName("Attack3"))
+        {
+            _isAttack = true;
+        }
+        else
+        {
+            _isAttack = false;
         }
     }
 }
